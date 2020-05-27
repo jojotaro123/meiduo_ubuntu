@@ -32,7 +32,7 @@ class MobileCountView(View):
     def get(self, request, mobile):
         '''判断手机号是否重复注册'''
         # 1.查询mobile在mysql中的个数
-        print('1')
+
         try:
             count = User.objects.filter(mobile=mobile).count()
         except Exception as e:
