@@ -85,6 +85,7 @@ class SMSCodeView(View):
             print('验证码输错了')
             response = http.JsonResponse({'code': 400,
                                       'errmsg': '验证码输错了'})
+
             return response
 
 
@@ -103,6 +104,7 @@ class SMSCodeView(View):
         pl.execute()
 
         CCP().send_template_sms(mobile, [sms_code, 5], 1)
+        print('发送验证码成功')
 
         return http.JsonResponse({'code': 0,
                                   'errmsg': '发送短信成功'})
