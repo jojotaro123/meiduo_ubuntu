@@ -5,6 +5,7 @@ from django_redis import get_redis_connection
 import logging
 from libs.captcha.captcha import captcha
 from libs.yuntongxun.ccp_sms import CCP
+from celery_tasks.sms.tasks import ccp_send_sms_code
 
 
 logger = logging.getLogger('django')
@@ -103,8 +104,10 @@ class SMSCodeView(View):
         # 执行管道:
         pl.execute()
 
-        CCP().send_template_sms(mobile, [sms_code, 5], 1)
-        print('发送验证码成功')
+        # CCP().send_template_sms(mobile, [sms_code, 5], 1)
+        # print('发送验证码成功')
+
+        ccp_send_sms_code.delay(mobile, sms_code)
 
         return http.JsonResponse({'code': 0,
                                   'errmsg': '发送短信成功'})
