@@ -21,4 +21,6 @@ urlpatterns = [
     # 添加users的总路由. 注意导入include函数:
     path(r'', include('apps.users.urls')),
     path(r'', include('apps.verifications.urls')),
+    path(r'',include('apps.oauth.urls')),
+    path(r'',include('apps.contents.urls')),
 ]

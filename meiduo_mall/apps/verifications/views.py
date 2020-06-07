@@ -98,16 +98,17 @@ class SMSCodeView(View):
         # redis_conn.setex('sms_%s' % mobile, 300, sms_code)
         pl.setex('sms_%s' % mobile, 300, sms_code)
 
+
         # redis_conn.setex('send_flag_%s' % mobile, 60, 1)
-        pl.setex('send_flag_%s' % mobile, 60, 1)
+        pl.setex('send_flag_%s' % mobile, 6, 1)
 
         # 执行管道:
         pl.execute()
 
-        # CCP().send_template_sms(mobile, [sms_code, 5], 1)
-        # print('发送验证码成功')
+        CCP().send_template_sms(mobile, [sms_code, 5], 1)
+        print('发送验证码成功')
 
-        ccp_send_sms_code.delay(mobile, sms_code)
+        # ccp_send_sms_code.delay(mobile, sms_code)
 
         return http.JsonResponse({'code': 0,
                                   'errmsg': '发送短信成功'})
