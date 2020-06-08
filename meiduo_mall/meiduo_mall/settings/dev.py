@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'apps.verifications',
     'apps.oauth',
     'apps.contents',
+'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -234,3 +235,4 @@ STATIC_URL = '/static/'
 QQ_CLIENT_ID = '101474184' # 我们申请的 客户端id
 QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c' # 我们申请的 客户端秘钥
 QQ_REDIRECT_URI = 'http://www.meiduo.site:8080/oauth_callback.html' # 登录成功后回调的路径
+
