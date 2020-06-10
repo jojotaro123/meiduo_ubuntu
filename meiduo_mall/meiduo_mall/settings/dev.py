@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'apps.verifications',
     'apps.oauth',
     'apps.contents',
-'django_crontab',
+    'django_crontab',
+    'apps.areas'
 ]
 
 MIDDLEWARE = [
