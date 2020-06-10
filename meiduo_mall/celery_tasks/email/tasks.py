@@ -1,6 +1,8 @@
+# 定义发送验证激活邮件的异步任务
 from django.core.mail import send_mail
 from django.conf import settings
 from celery_tasks.main import celery_app
+
 
 @celery_app.task(name='send_email_verify_url')
 def send_email_verify_url(to_email, verify_url):
@@ -17,12 +19,11 @@ def send_email_verify_url(to_email, verify_url):
     # )
 
     # 标题
-    subject = "KonoDioda"
+    subject = "美多商城邮箱验证"
     # 发送内容:
-    html_message = '<p>我不做人拉！JOJO</p>' \
-                   '<p>WRYYYYYYYYYY。</p>' \
-                    '<img src="https://imgsa.baidu.com/forum/w%3D580/sign=c2f1167442086e066aa83f4332097b5a/ee15212ac65c1038292b4487bc119313b17e89e7.jpg" alt="dio">'\
-                   '<p>您的邮箱为：%s 。请点击此链接成为吸血鬼：</p>' \
+    html_message = '<p>尊敬的用户您好！</p>' \
+                   '<p>感谢您使用美多商城。</p>' \
+                   '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
                    '<p><a href="%s">%s<a></p>' % (to_email, verify_url, verify_url)
 
     send_mail(

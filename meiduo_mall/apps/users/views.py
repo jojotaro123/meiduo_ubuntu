@@ -218,9 +218,9 @@ class EmailView(LoginRequiredJSONMixin, View):
             logger.error(e)
             return http.JsonResponse({'code': '400', 'errmsg': '数据错误'})
 
-            # 验证激活邮箱
-            verify_url = generate_email_verify_url(user=request.user)
-            send_email_verify_url.delay(email, verify_url)
+        # 验证激活邮箱
+        verify_url = generate_email_verify_url(user=request.user)
+        send_email_verify_url.delay(email, verify_url)
 
         return http.JsonResponse({'code': '0', 'errmsg': 'ok'})
 
