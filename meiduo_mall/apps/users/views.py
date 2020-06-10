@@ -6,10 +6,15 @@ from django.views import View
 from apps.users.models import User
 import json
 from django.http import JsonResponse
-import re
+import re,logging
 from django_redis import get_redis_connection
 from django.contrib.auth import login,logout,authenticate
+from meiduo_mall.utils.views import LoginRequiredJSONMixin
+from apps.users.utils import generate_email_verify_url, check_email_verify_url
+from django.core.mail import send_mail
+from celery_tasks.email.tasks import send_email_verify_url
 
+logger = logging.getLogger('django')
 
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
@@ -104,16 +109,18 @@ class RegisterView(View):
                                  'errmsg': '验证码不一样'})
 
         try:
-            user = User.objects.create_user(username,password,mobile)
+            user = User.objects.create_user(username,password=password,mobile=mobile)
 
         except Exception as e:
             return http.JsonResponse({'code': 400,
                                       'errmsg': '保存到数据库出错'})
 
         login(request, user)
-
-        return http.JsonResponse({'code': 0,
+        response = http.JsonResponse({'code': 0,
                                   'errmsg': 'ok'})
+        response.set_cookie('username',username)
+
+        return response
 
 class LoginView(View):
 
@@ -165,3 +172,84 @@ class LogoutView(View):
         response.delete_cookie('username')
 
         return response
+
+
+class UserInfoView(LoginRequiredJSONMixin, View):
+
+    def get(self,request):
+        print('userinfo')
+        data_dict = {
+            'code': 0,
+            'errmsg': 'OK',
+            'info_data': {
+                'username': request.user.username,
+                'mobile': request.user.mobile,
+                'email': request.user.email,
+                'email_active': request.user.email_active
+            }
+        }
+
+        return http.JsonResponse(data_dict)
+
+
+
+class EmailView(LoginRequiredJSONMixin, View):
+    def put(self,request):
+
+        request_str = request.body.decode()
+        request_dict = json.loads(request_str)
+
+        email = request_dict.get('email')
+
+        # 校验参数
+        if not email:
+            return http.JsonResponse({'code': 400,
+                                      'errmsg': '缺少email参数'})
+
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return http.JsonResponse({'code': 400,
+                                      'errmsg': '参数email有误'})
+
+        try:
+            request.user.email = email
+            request.user.save()
+
+        except Exception as e:
+            logger.error(e)
+            return http.JsonResponse({'code': '400', 'errmsg': '数据错误'})
+
+            # 验证激活邮箱
+            verify_url = generate_email_verify_url(user=request.user)
+            send_email_verify_url.delay(email, verify_url)
+
+        return http.JsonResponse({'code': '0', 'errmsg': 'ok'})
+
+
+class EmailActiveView(View):
+    """验证激活邮箱
+    PUT /emails/verification/
+    """
+
+    def put(self, request):
+        """实现验证激活邮箱的逻辑"""
+        # 接收参数
+        token = request.GET.get('token')
+
+        # 校验参数
+        if not token:
+            return http.JsonResponse({'code': 400, 'errmsg': '缺少token'})
+
+        # 实现核心逻辑
+        # 通过token提取要验证邮箱的用户
+        user = check_email_verify_url(token=token)
+
+        # 将要验证邮箱的用户的email_active字段设置True
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            logger.error(e)
+            return http.JsonResponse({'code': 400, 'errmsg': '邮箱验证失败'})
+
+        # 响应结果
+        return http.JsonResponse({'code': 0, 'errmsg': '邮箱验证成功'})

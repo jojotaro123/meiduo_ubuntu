@@ -11,6 +11,8 @@ class User(AbstractUser):
                               unique=True,
                               verbose_name='手机号')
 
+    email_active = models.BooleanField(default=False, verbose_name='邮箱状态')
+
     # 对当前表进行相关设置:
     class Meta:
         db_table = 'tb_users'
