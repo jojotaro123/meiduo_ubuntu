@@ -253,3 +253,12 @@ class EmailActiveView(View):
 
         # 响应结果
         return http.JsonResponse({'code': 0, 'errmsg': '邮箱验证成功'})
+
+
+
+
+
+class CreateAddressView(View):
+    def post(self,request):
+        request_json = request.body.decode()
+        json_dict = json.loads(request_json)

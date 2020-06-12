@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/',views.LogoutView.as_view()),
     path('info/',views.UserInfoView.as_view()),
     path('emails/', views.EmailView.as_view()),
+    re_path(r'^addresses/create/$',views.CreateAddressView.as_view()),
 
 ]
 

@@ -1,6 +1,6 @@
 from django.db import models
 
-from meiduo_mall.utils.models import BaseModel
+from meiduo_mall.utils.BaseModel import BaseModel
 # Create your models here.
 
 
